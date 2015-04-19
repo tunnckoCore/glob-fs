@@ -11,5 +11,5 @@ var test = require('assertit');
 var globFs = require('./index');
 
 test('glob-fs:', function() {
-  // body
+  console.log('ok')
 });
