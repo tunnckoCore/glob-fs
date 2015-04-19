@@ -7,6 +7,12 @@ Needs a lot of testing and fixtures, use cases.
 Join the discussion at [jonschlinkert/glob-fs](https://github.com/jonschlinkert/glob-fs/issues) or open issues here.
 
 
+## Thanks
+- [logicalparadox/readdir-stream](https://github.com/logicalparadox/readdir-stream)
+- [wearefractal/vinyl-fs](https://github.com/wearefractal/vinyl-fs)
+- [wearefractal/glob-stream](https://github.com/wearefractal/glob-stream)
+
+
 ## Install
 ```
 npm i --save glob-fs
