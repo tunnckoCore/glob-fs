@@ -2,6 +2,10 @@
 
 > wip, Better file globbing library for javascript and node.js. Faster alternative to glob-stream, gulp, vinyl-fs.
 
+**NOTE:** Won't be published soon, just implementation, just playing.
+Needs a lot of testing and fixtures, use cases.
+
+
 ## Install
 ```
 npm i --save glob-fs
