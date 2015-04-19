@@ -8,9 +8,11 @@ Join the discussion at [jonschlinkert/glob-fs](https://github.com/jonschlinkert/
 
 
 ## Thanks
-- [logicalparadox/readdir-stream](https://github.com/logicalparadox/readdir-stream)
+- [wearefractal/vinyl](https://github.com/wearefractal/vinyl)
 - [wearefractal/vinyl-fs](https://github.com/wearefractal/vinyl-fs)
 - [wearefractal/glob-stream](https://github.com/wearefractal/glob-stream)
+- [jonschlinkert/micromatch](https://github.com/jonschlinkert/micromatch)
+- [logicalparadox/readdir-stream](https://github.com/logicalparadox/readdir-stream)
 
 
 ## Install
