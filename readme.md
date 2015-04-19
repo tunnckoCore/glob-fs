@@ -4,6 +4,7 @@
 
 **NOTE:** Won't be published soon, just implementation, just playing.
 Needs a lot of testing and fixtures, use cases.
+Join the discussion at [jonschlinkert/glob-fs](https://github.com/jonschlinkert/glob-fs/issues) or open issues here.
 
 
 ## Install
