@@ -40,27 +40,27 @@ function GlobFS(root, options) {
   this.queue = [root];
   this.options = options;
 
+  var cwd = this.options.cwd;
   var patterns = this.options.patterns;
 
   if (Array.isArray(patterns)) {
     this.single = patterns.length === 1;
-    patterns = this.single ? unrelative(patterns[0]) : uniqueify(patterns);
+    patterns = this.single ? unrelative(cwd, patterns[0]) : uniqueify(patterns);
     patterns = this.single ? patterns : patterns.map(function(pattern) {
-      return unrelative(pattern);
+      return unrelative(cwd, pattern);
     });
-
+    patterns = patterns.concat(unrelative(cwd, 'node_modules'));
     this.isMatch = matcher(patterns, options);
-    this.options.patterns = patterns;
     return;
   }
   if (typeof patterns === 'string') {
     this.single = true;
-    patterns = unrelative(patterns);
+    patterns = unrelative(cwd, patterns);
+    patterns = [patterns].concat(unrelative(cwd, 'node_modules'));
     this.isMatch = matcher(patterns, options);
-    this.options.patterns = patterns;
     return;
   }
-  this.isMatch = matcher(patterns, options);
+  this.isMatch = matcher(this.options.patterns, options);
 };
 
 inherits(GlobFS, Readable);
@@ -91,7 +91,7 @@ GlobFS.prototype._read = function __read() {
 
     if (self.options.src) {
       if (stat.isFile()) {
-        vinyl.contents = stripBom(fs.readFileSync(vinyl.path), 'utf-8');
+        vinyl.contents = stripBom(fs.readFileSync(vinyl.path), 'utf8');
       }
       if (vinyl.isStream()) {
         vinyl.contents = fs.createReadStream(vinyl.path).pipe(stripBom.stream());
