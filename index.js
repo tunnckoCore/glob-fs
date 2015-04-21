@@ -8,7 +8,7 @@
 'use strict';
 
 var File = require('vinyl');
-var matcher = require('is-match');
+var micromatch = require('is-match');
 var eachAsync = require('each-async');
 var uniqueify = require('uniqueify');
 var stripBom = require('strip-bom');
@@ -35,13 +35,17 @@ function GlobFS(root, options) {
     options.base = options.cwd;
   }
 
-  this.single = false;
-  this.root = root;
-  this.queue = [root];
   this.options = options;
 
   var cwd = this.options.cwd;
   var patterns = this.options.patterns;
+
+  this.root = unrelative(cwd, root);
+  this.queue = [this.root];
+
+  this.matches = 0;
+  this.single = false;
+
 
   if (Array.isArray(patterns)) {
     this.single = patterns.length === 1;
@@ -49,38 +53,58 @@ function GlobFS(root, options) {
     patterns = this.single ? patterns : patterns.map(function(pattern) {
       return unrelative(cwd, pattern);
     });
-    patterns = patterns.concat(unrelative(cwd, 'node_modules'));
-    this.isMatch = matcher(patterns, options);
+    patterns = patterns.concat(this.root);
+    this.patterns = patterns;
+    this.isMatch = micromatch(patterns, this.options);
     return;
   }
+
+  /* uncomment when ok
   if (typeof patterns === 'string') {
     this.single = true;
     patterns = unrelative(cwd, patterns);
-    patterns = [patterns].concat(unrelative(cwd, 'node_modules'));
-    this.isMatch = matcher(patterns, options);
+    this.isMatch = micromatch(patterns, options);
     return;
-  }
-  this.isMatch = matcher(this.options.patterns, options);
+  }*/
+
+  this.isMatch = micromatch(patterns, this.options);
 };
 
 inherits(GlobFS, Readable);
 
-GlobFS.prototype.getCache = function() {
-  return this.cache;
-};
 GlobFS.prototype._read = function __read() {
   var self = this;
 
-  if (!self.queue.length) {
-    debug('(end)');
+  if (!this.queue.length) {
+    debug('(end) matches: %s', this.matches);
     this.push(null);
     return;
   }
 
-  var filepath = self.queue.shift();
+  var filepath = this.queue.shift();
+
+  if (!this.isMatch(filepath)) {
+    debug('(info) not match, %s', filepath);
+    this._read();
+    return;
+  }
+
+  // @todo
+  if (/node_modules|\.git/.test(filepath)) {
+    this._read();
+    return;
+  }
+  this.matches++;
+
   debug('(stat) %s', filepath);
   fs.stat(filepath, function(err, stat) {
-    if (err) {return error(err);}
+    if (err) {return self._error(err);}
+
+    if (self.options.since > stat.mtime) {
+      debug('(info) have not been modified since `options.since`');
+      self._read();
+      return;
+    }
 
     var vinyl = new File({
       path: filepath,
@@ -89,66 +113,59 @@ GlobFS.prototype._read = function __read() {
       cwd: self.options.cwd
     });
 
+    // @todo
     if (self.options.src) {
+      debug('(info) `options.src` is enabled', filepath);
       if (stat.isFile()) {
-        vinyl.contents = stripBom(fs.readFileSync(vinyl.path), 'utf8');
+        vinyl.contents = stripBom(fs.readFileSync(vinyl.path, 'utf8'));
       }
       if (vinyl.isStream()) {
         vinyl.contents = fs.createReadStream(vinyl.path).pipe(stripBom.stream());
       }
     }
-
     if (stat.isDirectory()) {
-      readdir(filepath, function(err) {
-        if (err) {return error(err);}
-        push(vinyl);
+      self._readdir(filepath, function(err) {
+        if (err) {return self._error(err);}
+        self._push(vinyl);
       });
       return;
     }
-    push(vinyl);
+    self._push(vinyl);
   });
+};
 
+/**
+ * helpers for `error`, `push` and recursive `readdir`
+ */
+GlobFS.prototype._error = function _error(err) {
+  debug('(error) %s', err.message);
+  this.emit('error', err);
+};
 
-  /**
-   * helpers for `error`, `push` and recursive `readdir`
-   */
-  function error(err) {
-    debug('(error) %s', err.message);
-    self.emit('error', err);
+GlobFS.prototype._push = function _push(obj) {
+  if (this.root === obj.path) {
+    debug('(info) the root');
+    this._read();
+    return;
   }
+  debug('(push) %s', obj.path);
+  this.push(obj);
+};
 
-  function push(obj) {
-    var match = self.isMatch(obj.path);
+GlobFS.prototype._readdir = function _readdir(dir, done) {
+  var self = this;
+  debug('(readdir) %s', dir);
+  fs.readdir(dir, function(err, filepaths) {
+    if (err) {return self._error(err);}
 
-    if (self.options.allowEmpty !== true && !match && self.single) {
-      self.emit('error', new Error('File not found with singular glob'));
-      return;
-    }
-    var since = match && (self.options.since < obj.stat.mtime);
+    eachAsync(filepaths, function _eachFilepaths(fp, i, next) {
+      fp = unrelative(dir, fp);
+      debug('(queue) %s', fp);
+      self.queue.push(fp);
 
-    if (match || since) {
-      debug('(push) %s', obj.path);
-      self.push(obj);
-      return;
-    }
-
-    self._read();
-  }
-
-  function readdir(dir, done) {
-    debug('(readdir) %s', dir);
-    fs.readdir(dir, function(err, filepaths) {
-      if (err) {return error(err);}
-
-      eachAsync(filepaths, function _eachFilepaths(fp, i, next) {
-        fp = path.join(dir, fp);
-        debug('(queue) %s', fp);
-        self.queue.push(fp);
-
-        next();
-      }, done);
-    });
-  }
+      next();
+    }, done);
+  });
 };
 
 /**
