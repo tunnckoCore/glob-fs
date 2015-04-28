@@ -34,7 +34,7 @@ function GlobFS(root, options) {
   if (typeof options.cwdbase === 'boolean' && options.cwdbase) {
     options.base = options.cwd;
   }
-
+  options.encoding = options.encoding || 'utf8';
   this.options = options;
 
   var cwd = this.options.cwd;
@@ -117,7 +117,7 @@ GlobFS.prototype._read = function __read() {
     if (self.options.src) {
       debug('(info) `options.src` is enabled', filepath);
       if (stat.isFile()) {
-        vinyl.contents = stripBom(fs.readFileSync(vinyl.path, 'utf8'));
+        vinyl.contents = stripBom(fs.readFileSync(vinyl.path, self.options));
       }
       if (vinyl.isStream()) {
         vinyl.contents = fs.createReadStream(vinyl.path).pipe(stripBom.stream());
@@ -176,7 +176,7 @@ function arrayify(val) {
   return !Array.isArray(val)
     ? [val]
     : val;
-};
+}
 
 function unrelative(cwd, glob) {
   var negate = '';
