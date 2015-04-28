@@ -46,6 +46,9 @@ gfs(path.join(__dirname, 'playing'), {cwd: __dirname, dot: true, src: true, patt
   i++;
   console.log(i, file.contents)
 })
-.on('end', function() {
+.once('error', function(err) {
+  console.log('error:', err)
+})
+.once('end', function() {
   console.log('glob-fs:', i);
 });
