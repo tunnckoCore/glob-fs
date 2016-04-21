@@ -1,191 +1,160 @@
-/**
+/*!
  * glob-fs <https://github.com/tunnckoCore/glob-fs>
  *
- * Copyright (c) 2015 Charlike Mike Reagent, contributors.
+ * Copyright (c) 2016 Charlike Mike Reagent <@tunnckoCore> (http://www.tunnckocore.tk)
  * Released under the MIT license.
  */
 
-'use strict';
+'use strict'
 
-var File = require('vinyl');
-var micromatch = require('is-match');
-var eachAsync = require('each-async');
-var uniqueify = require('uniqueify');
-var stripBom = require('strip-bom');
-var debug = require('debug')('glob-fs');
+var utils = require('./utils')
+var util = require('util')
+var path = require('path')
 
-var fs = require('graceful-fs');
-var path = require('path');
-var inherits = require('util').inherits;
-var Readable = require('stream').Readable;
-
-function GlobFS(root, options) {
+function GlobFS (pattern, options) {
   if (!(this instanceof GlobFS)) {
-    return new GlobFS(root, options);
+    return new GlobFS(pattern, options)
   }
-  if (typeof root !== 'string') {
-    throw new TypeError('[erasm-stream] expect `root` to be string');
-  }
-  Readable.call(this, {objectMode: true});
-
-  options = typeof options === 'object' ? options : {};
-  options.cwd = typeof options.cwd !== 'string' ? process.cwd() : options.cwd;
-
-  if (typeof options.cwdbase === 'boolean' && options.cwdbase) {
-    options.base = options.cwd;
-  }
-  options.encoding = options.encoding || 'utf8';
-  this.options = options;
-
-  var cwd = this.options.cwd;
-  var patterns = this.options.patterns;
-
-  this.root = unrelative(cwd, root);
-  this.queue = [this.root];
-
-  this.matches = 0;
-  this.single = false;
-
-
-  if (Array.isArray(patterns)) {
-    this.single = patterns.length === 1;
-    patterns = this.single ? unrelative(cwd, patterns[0]) : uniqueify(patterns);
-    patterns = this.single ? patterns : patterns.map(function(pattern) {
-      return unrelative(cwd, pattern);
-    });
-    patterns = patterns.concat(this.root);
-    this.patterns = patterns;
-    this.isMatch = micromatch(patterns, this.options);
-    return;
+  if (typeof pattern !== 'string') {
+    throw new TypeError('glob-fs: expect `pattern` be string')
   }
 
-  /* uncomment when ok
-  if (typeof patterns === 'string') {
-    this.single = true;
-    patterns = unrelative(cwd, patterns);
-    this.isMatch = micromatch(patterns, options);
-    return;
-  }*/
+  this.initGlob(pattern, options)
+  utils.stream.Readable.call(this, this.options)
+}
 
-  this.isMatch = micromatch(patterns, this.options);
-};
+util.inherits(GlobFS, utils.stream.Readable)
 
-inherits(GlobFS, Readable);
+/**
+ * [initGlob description]
+ * @param  {[type]} pattern [description]
+ * @param  {[type]} options [description]
+ * @return {[type]}         [description]
+ */
 
-GlobFS.prototype._read = function __read() {
-  var self = this;
+GlobFS.prototype.initGlob = function initGlob (pattern, options) {
+  this.pattern = pattern
+  this.input = utils.globBase(this.pattern)
+  this.options = utils.extend({
+    objectMode: true,
+    cwd: process.cwd(),
+    cwdbase: false,
+    base: null
+  }, options)
 
+  if (this.options.cwdbase === true) {
+    this.options.base = this.options.cwd
+  }
+
+  var fp = this.input.isGlob ? this.input.base : this.pattern
+  pattern = this.input.isGlob ? this.pattern : this.input.base
+  pattern = path.resolve(this.options.cwd, pattern)
+
+  this.path = path.resolve(this.options.cwd, fp)
+  this.queue = [this.path]
+
+  var include = this.options.include
+  var exclude = this.options.exclude
+
+  this.isMatch = utils.mm(pattern, this.options)
+  this.isIncluded = include ? utils.mm(include, this.options) : function noop () {}
+  this.isExcluded = exclude ? utils.mm(exclude, this.options) : function noop () {}
+}
+
+/**
+ * [_read description]
+ * @return {[type]} [description]
+ */
+
+GlobFS.prototype._read = function read () {
   if (!this.queue.length) {
-    debug('(end) matches: %s', this.matches);
-    this.push(null);
-    return;
+    this.push(null)
+    return
   }
-
-  var filepath = this.queue.shift();
-
-  if (!this.isMatch(filepath)) {
-    debug('(info) not match, %s', filepath);
-    this._read();
-    return;
-  }
-
-  // @todo
-  if (/node_modules|\.git/.test(filepath)) {
-    this._read();
-    return;
-  }
-  this.matches++;
-
-  debug('(stat) %s', filepath);
-  fs.stat(filepath, function(err, stat) {
-    if (err) {return self._error(err);}
-
-    if (self.options.since > stat.mtime) {
-      debug('(info) have not been modified since `options.since`');
-      self._read();
-      return;
-    }
-
-    var vinyl = new File({
-      path: filepath,
-      stat: stat,
-      base: self.options.base || path.dirname(filepath),
-      cwd: self.options.cwd
-    });
-
-    // @todo
-    if (self.options.src) {
-      debug('(info) `options.src` is enabled', filepath);
-      if (stat.isFile()) {
-        vinyl.contents = stripBom(fs.readFileSync(vinyl.path, self.options));
-      }
-      if (vinyl.isStream()) {
-        vinyl.contents = fs.createReadStream(vinyl.path).pipe(stripBom.stream());
-      }
-    }
-    if (stat.isDirectory()) {
-      self._readdir(filepath, function(err) {
-        if (err) {return self._error(err);}
-        self._push(vinyl);
-      });
-      return;
-    }
-    self._push(vinyl);
-  });
-};
-
-/**
- * helpers for `error`, `push` and recursive `readdir`
- */
-GlobFS.prototype._error = function _error(err) {
-  debug('(error) %s', err.message);
-  this.emit('error', err);
-};
-
-GlobFS.prototype._push = function _push(obj) {
-  if (this.root === obj.path) {
-    debug('(info) the root');
-    this._read();
-    return;
-  }
-  debug('(push) %s', obj.path);
-  this.push(obj);
-};
-
-GlobFS.prototype._readdir = function _readdir(dir, done) {
-  var self = this;
-  debug('(readdir) %s', dir);
-  fs.readdir(dir, function(err, filepaths) {
-    if (err) {return self._error(err);}
-
-    eachAsync(filepaths, function _eachFilepaths(fp, i, next) {
-      fp = unrelative(dir, fp);
-      debug('(queue) %s', fp);
-      self.queue.push(fp);
-
-      next();
-    }, done);
-  });
-};
-
-/**
- * utils
- */
-
-function arrayify(val) {
-  return !Array.isArray(val)
-    ? [val]
-    : val;
+  this._stat(this.queue.shift())
 }
 
-function unrelative(cwd, glob) {
-  var negate = '';
-  var ch = glob.charAt(0);
-  if (ch === '!') {
-    negate = ch;
-    glob = glob.slice(1);
-  }
-  return negate + path.resolve(cwd, glob);
+/**
+ * [_stat description]
+ * @param  {[type]} fp [description]
+ * @return {[type]}    [description]
+ */
+
+GlobFS.prototype._stat = function stat (fp) {
+  var self = this
+  utils.fs.stat(fp, function (err, stats) {
+    if (err) return self.emit('error', err)
+    if (self.options.since > stats.mtime) {
+      self._read()
+      return
+    }
+    var file = self.createFile(fp, stats)
+
+    if (stats.isDirectory()) {
+      self._readdir(fp, function (err, res) {
+        if (err) return self.emit('error', err)
+        self._push(file)
+      })
+      return
+    }
+    self._push(file)
+  })
 }
 
-module.exports = GlobFS;
+/**
+ * [createFile description]
+ * @param  {[type]} fp    [description]
+ * @param  {[type]} stats [description]
+ * @return {[type]}       [description]
+ */
+
+GlobFS.prototype.createFile = function createFile (fp, stats) {
+  return new utils.File({
+    path: fp,
+    stat: stats,
+    base: this.options.base || path.dirname(fp),
+    cwd: this.options.cwd
+  })
+}
+
+/**
+ * [_readdir description]
+ * @param  {[type]}   dir  [description]
+ * @param  {Function} done [description]
+ * @return {[type]}        [description]
+ */
+
+GlobFS.prototype._readdir = function readdir (dir, done) {
+  var self = this
+  utils.fs.readdir(dir, function (err, filepaths) {
+    if (err) return done(err)
+    utils.async.eachSeries(filepaths, function (fp, next) {
+      fp = path.resolve(dir, fp)
+      self.queue.push(fp)
+      next()
+    }, done)
+  })
+}
+
+/**
+ * [_push description]
+ * @param  {[type]} file [description]
+ * @return {[type]}      [description]
+ */
+
+GlobFS.prototype._push = function push (file) {
+  var included = this.isIncluded(file.path)
+  var excluded = this.isExcluded(file.path)
+
+  if (/node_modules|\.git/.test(file.path)) {
+    return this._read()
+  }
+  if (this.isMatch(file.path) || included) {
+    if (excluded) return included ? this.push(file) : this._read()
+    this.push(file)
+    return
+  }
+  this._read()
+}
+
+module.exports = GlobFS
