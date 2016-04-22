@@ -48,6 +48,7 @@ Readdir.prototype.initReaddir = function initReaddir (dir) {
   utils.stream.Readable.call(this, this.options)
   this.path = path.resolve(this.options.cwd, dir)
   this.queue = [this.path]
+  // this.bases = [] // @todo
 }
 
 /**
@@ -56,6 +57,13 @@ Readdir.prototype.initReaddir = function initReaddir (dir) {
  */
 
 Readdir.prototype._read = function read () {
+  // if (!this.bases.length && !this.queue.length) {
+  //   this.push(null)
+  //   return
+  // }
+  // if (!this.queue.length) {
+  //   this.queue = [this.bases.shift()]
+  // }
   if (!this.queue.length) {
     this.push(null)
     return

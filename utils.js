@@ -26,17 +26,22 @@ require = utils // eslint-disable-line no-undef, no-native-reassign
 
 require('async')
 require('extend-shallow', 'extend')
-require('glob-base')
 require('graceful-fs', 'fs')
-require('is-match', 'mm')
+require('is-dotdir')
+require('is-dotfile')
 require('readable-stream', 'stream')
 require('vinyl', 'File')
+require('use')
 
 /**
  * Restore `require`
  */
 
 require = fn // eslint-disable-line no-undef, no-native-reassign
+
+utils.isValidSince = function isValidSince (since) {
+  return typeof since === 'number' || since instanceof Number || since instanceof Date
+}
 
 /**
  * Expose `utils` modules
