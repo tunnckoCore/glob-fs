@@ -28,7 +28,7 @@ var patterns = [
   '!benchmark/playing/b/**',
   'fixtures/betafoo/**',
   'benchmark/playing/**/*.js',
-  'fixtures/coverage/**/*.{html,json}',
+  'fixtures/quxie/**/*.{html,json}',
   '!fixtures/betafoo/data.json',
   '!benchmark/playing/a/[c-z][0-9].*'
 ]

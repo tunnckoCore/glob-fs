@@ -28,7 +28,7 @@ var patterns = [
   '!playing/b/**',
   '../fixtures/betafoo/**',
   'playing/**/*.js',
-  '../fixtures/coverage/**/*.{html,json}',
+  '../fixtures/quxie/**/*.{html,json}',
   '!../fixtures/betafoo/data.json',
   '!../fixtures/betafoo/carra/base.css',
   '!playing/a/[c-z][0-9].*'
@@ -37,7 +37,7 @@ var patterns = [
 var gsoPatterns = [
   '../fixtures/betafoo/**',
   'playing/**/*.js',
-  '../fixtures/coverage/**/*.{html,json}',
+  '../fixtures/quxie/**/*.{html,json}',
   '!playing/b/**',
   '!../fixtures/betafoo/data.json',
   '!../fixtures/betafoo/carra/base.css',
