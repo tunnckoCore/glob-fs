@@ -11,17 +11,20 @@ var utils = require('./utils')
 var util = require('util')
 var path = require('path')
 
-function Readdir (dir, options) {
+function Readdir (patterns, options) {
   if (!(this instanceof Readdir)) {
-    return new Readdir(dir, options)
+    return new Readdir(patterns, options)
   }
-  if (typeof dir !== 'string') {
-    throw new TypeError('readdir: expect a `dir` be string')
+  if (!utils.isValidGlob(patterns)) {
+    throw new TypeError('readdir: expect `patterns` to be string or array of strings')
+  }
+  if (patterns.length === 0) {
+    throw new Error('readdir: expect at least 1 pattern to be passed')
   }
 
-  this.defaultOptions(options)
-  this.initReaddir(dir)
   utils.use(this)
+  this.defaultOptions(options)
+  this.initReaddir(patterns)
 }
 
 util.inherits(Readdir, utils.stream.Readable)
@@ -34,6 +37,7 @@ util.inherits(Readdir, utils.stream.Readable)
 
 Readdir.prototype.defaultOptions = function defaultOptions (options) {
   this.options = utils.extend({
+    recurse: false,
     objectMode: true,
     cwd: process.cwd()
   }, options)
@@ -44,11 +48,19 @@ Readdir.prototype.defaultOptions = function defaultOptions (options) {
   return this.options
 }
 
-Readdir.prototype.initReaddir = function initReaddir (dir) {
+Readdir.prototype.initReaddir = function initReaddir (patterns) {
   utils.stream.Readable.call(this, this.options)
-  this.path = path.resolve(this.options.cwd, dir)
-  this.queue = [this.path]
-  // this.bases = [] // @todo
+  this.patterns = patterns
+  this
+    .use(utils.plugins.basics)
+    .use(utils.plugins.installHack)
+    .use(utils.plugins.normalizeDots)
+    .use(utils.plugins.match)
+    // .use(function (app) {
+    //   app.include = utils.factory('include')
+    //   app.exclude = utils.factory('exclude')
+    // })
+    // .include(this.patterns)
 }
 
 /**
@@ -57,16 +69,12 @@ Readdir.prototype.initReaddir = function initReaddir (dir) {
  */
 
 Readdir.prototype._read = function read () {
-  // if (!this.bases.length && !this.queue.length) {
-  //   this.push(null)
-  //   return
-  // }
-  // if (!this.queue.length) {
-  //   this.queue = [this.bases.shift()]
-  // }
-  if (!this.queue.length) {
+  if (!this.bases.length && !this.queue.length) {
     this.push(null)
     return
+  }
+  if (!this.queue.length) {
+    this.queue = [this.bases.shift()]
   }
   this._stat(this.queue.shift())
 }
@@ -78,25 +86,30 @@ Readdir.prototype._read = function read () {
  */
 
 Readdir.prototype._stat = function stat (fp) {
+  var self = this
   utils.fs.stat(fp, function (err, stats) {
-    if (err) return this.emit('error', err)
-    if (this.options.since > stats.mtime) {
-      this._read()
+    if (err) return self.emit('error', err)
+    self.file = self.createFile(fp, stats)
+
+    if (self.options.since > stats.mtime) {
+      self.emit('since', self.file)
+      self._read()
       return
     }
 
-    this.file = this.createFile(fp, stats)
+    self.run(self.file)
 
-    var recurse = this.path === this.file.path || this.options.recursive
+    var recurse = self.path === self.file.path
+    recurse = recurse || self.options.recurse || self.options.recursive
+
     if (recurse && stats.isDirectory()) {
-      this._readdir(fp, function (err) {
-        if (err) return this.emit('error', err)
-        this._push()
-      }.bind(this))
+      self.emit('dir', self.file)
+      self._readdir(fp, self.next.bind(self))
       return
     }
-    this._push()
-  }.bind(this))
+    self.emit('file', self.file)
+    self.next()
+  })
 }
 
 Readdir.prototype.createFile = function (fp, stats) {
@@ -136,15 +149,13 @@ Readdir.prototype._readdir = function readdir (dir, done) {
   })
 }
 
-Readdir.prototype._push = function push () {
-  this.run(this.file)
-
+Readdir.prototype.next = function next (err) {
+  if (err) return this.emit('error', err)
   if (this.file.exclude) {
     return this.file.include
       ? this.push(this.file)
       : this._read()
   }
-
   this.push(this.file)
 }
 

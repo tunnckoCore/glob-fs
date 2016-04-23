@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for postjson/index.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">postjson/</a> index.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">92.31% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>36/39</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">66.67% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>16/24</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>9/9</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">94.74% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>36/38</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-yes">14×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/*!
+ * postjson &lt;https://github.com/tunnckoCore/postjson&gt;
+ *
+ * Copyright (c) 2016 Charlike Mike Reagent &lt;@tunnckoCore&gt; (http://www.tunnckocore.tk)
+ * Released under the MIT license.
+ */
+&nbsp;
+'use strict'
+&nbsp;
+var utils = require('./utils')
+&nbsp;
+function PostJSON (plugins, options) {
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (!(this instanceof PostJSON)) {
+<span class="cstat-no" title="statement not covered" >    return new PostJSON(plugins, options)</span>
+  }
+  this.options = utils.extend({
+    parser: utils.postjsonParser,
+    render: utils.postjsonRender
+  }, options || this.options)
+  this.plugins = utils.arrayify(plugins)
+}
+&nbsp;
+/**
+ * Add a `fn` as plugin.
+ *
+ * @param  {Functio|Array} `fn`
+ * @param  {Object}   `options`
+ * @return {PostJSON} instance for chaining
+ * @api public
+ */
+PostJSON.prototype.use = function use (fn, options) {
+  this.options = options ? <span class="branch-0 cbranch-no" title="branch not covered" >utils.extend(this.options, options) </span>: this.options
+  this.plugins = this.plugins.concat(utils.arrayify(fn))
+  return this
+}
+&nbsp;
+PostJSON.prototype.parse = function parse (val, options) {
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (typeof val !== 'string' &amp;&amp; typeof val !== 'object') {
+<span class="cstat-no" title="statement not covered" >    throw new TypeError('postjson.parse: expect `val` be string or object')</span>
+  }
+&nbsp;
+  this.options = options ? <span class="branch-0 cbranch-no" title="branch not covered" >utils.extend(this.options, options) </span>: this.options
+  this.value = typeof val === 'string' ? <span class="branch-0 cbranch-no" title="branch not covered" >JSON.parse(val) </span>: val
+  this.tree = this.options.parser(this.value, this.options)
+  return this
+}
+&nbsp;
+PostJSON.prototype.render = function render (tree, options) {
+  this.tree = typeof tree === 'object' &amp;&amp; arguments.length &gt; 1 ? tree : <span class="branch-1 cbranch-no" title="branch not covered" >this.tree</span>
+  this.options = options ? utils.extend(this.options, options) : <span class="branch-1 cbranch-no" title="branch not covered" >this.options</span>
+  this.json = this.options.render(this.tree, this.options)
+  return this
+}
+&nbsp;
+PostJSON.prototype.toString = function toString (indent) {
+  return JSON.stringify(this.json, null, indent)
+}
+&nbsp;
+PostJSON.prototype.walk = function walk (tree, fn) {
+  var self = this
+  utils.arrayify(tree).forEach(function (node) {
+    <span class="missing-if-branch" title="if path not taken" >I</span>if (Array.isArray(node)) <span class="cstat-no" title="statement not covered" >return self.walk(node, fn)</span>
+    fn(node)
+  })
+}
+&nbsp;
+PostJSON.prototype.process = function process (val, options) {
+  var self = this
+  this.parse(val, options)
+  this.plugins.forEach(function (plugin) {
+    var res = plugin.call(self, self, self.tree, self.options)
+    self.tree = res || self.tree
+  })
+  return this.render(this.tree, this.options)
+}
+&nbsp;
+/**
+ * Expose `PostJSON` instance
+ *
+ * @type {Object}
+ * @api private
+ */
+&nbsp;
+module.exports = new PostJSON()
+&nbsp;
+/**
+ * Expose `PostJSON` constructor
+ *
+ * @type {Function}
+ * @api private
+ */
+&nbsp;
+module.exports.PostJSON = PostJSON
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Apr 12 2016 12:26:43 GMT+0300 (EEST)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

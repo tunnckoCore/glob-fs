@@ -1,5 +1,5 @@
 {
-  "name": "glob-fs",
+  "name": "wip-fs",
   "version": "0.0.0",
   "description": "File globbing library. To 15-30x faster than glob-stream. Streaming. Period.",
   "repository": "tunnckoCore/glob-fs",
@@ -24,6 +24,7 @@
     "assertit": "^0.1.0",
     "benchmark": "^2.1.0",
     "glob": "^7.0.3",
+    "glob-fs": "^0.1.6",
     "glob-stream": "^5.3.2",
     "pre-commit": "*"
   },
@@ -43,7 +44,8 @@
   },
   "standard": {
     "ignore": [
-      "**/benchmark/**"
+      "**/benchmark/**",
+      "**/fixtures/**"
     ]
   }
 }
