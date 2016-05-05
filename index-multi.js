@@ -7,6 +7,8 @@
 
 'use strict'
 
+/* eslint-disable */
+
 var utils = require('./utils')
 var util = require('util')
 var path = require('path')
@@ -37,7 +39,7 @@ util.inherits(Readdir, utils.stream.Readable)
 
 Readdir.prototype.defaultOptions = function defaultOptions (options) {
   this.options = utils.extend({
-    recurse: false,
+    recurse: true,
     objectMode: true,
     cwd: process.cwd()
   }, options)
@@ -73,10 +75,18 @@ Readdir.prototype._read = function read () {
     this.push(null)
     return
   }
-  if (!this.queue.length) {
-    this.queue = [this.bases.shift()]
-  }
-  this._stat(this.queue.shift())
+  // if (!this.queue.length) {
+  //   this.queue = [this.bases.shift()]
+  // }
+  var self = this
+  utils.async.each(this.bases, function (dir, next) {
+    self._stat(dir, next)
+  }, function (err, status) {
+    if (err) return self.emit('error', err)
+    if (status) return self._read()
+    self.next()
+  })
+  // this._stat(this.queue.shift())
 }
 
 /**
@@ -85,15 +95,18 @@ Readdir.prototype._read = function read () {
  * @return {[type]}    [description]
  */
 
-Readdir.prototype._stat = function stat (fp) {
+Readdir.prototype._stat = function stat (fp, done) {
   var self = this
   utils.fs.stat(fp, function (err, stats) {
-    if (err) return self.emit('error', err)
+    if (err) {
+      done(err)
+      return
+    }
     self.file = self.createFile(fp, stats)
 
     if (self.options.since > stats.mtime) {
       self.emit('since', self.file)
-      self._read()
+      done(null, 1)
       return
     }
 
@@ -104,11 +117,11 @@ Readdir.prototype._stat = function stat (fp) {
 
     if (recurse && stats.isDirectory()) {
       self.emit('dir', self.file)
-      self._readdir(fp, self.next.bind(self))
+      self._readdir(fp, done)
       return
     }
     self.emit('file', self.file)
-    self.next()
+    done()
   })
 }
 
@@ -141,7 +154,7 @@ Readdir.prototype._readdir = function readdir (dir, done) {
   var self = this
   utils.fs.readdir(dir, function (err, filepaths) {
     if (err) return done(err)
-    utils.async.eachSeries(filepaths, function (fp, next) {
+    utils.async.each(filepaths, function (fp, next) {
       fp = path.resolve(dir, fp)
       self.queue.push(fp)
       next()
@@ -149,8 +162,7 @@ Readdir.prototype._readdir = function readdir (dir, done) {
   })
 }
 
-Readdir.prototype.next = function next (err) {
-  if (err) return this.emit('error', err)
+Readdir.prototype.next = function next () {
   if (this.file.exclude) {
     return this.file.include
       ? this.push(this.file)

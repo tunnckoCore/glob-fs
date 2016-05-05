@@ -1,5 +1,7 @@
 'use strict'
 
+/* eslint-disable */
+
 var extend = require('extend-shallow')
 var readdir = require('./index')
 var matcher = require('is-match')

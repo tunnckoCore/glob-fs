@@ -5,44 +5,34 @@
  * Released under the MIT license.
  */
 
-/* jshint asi:true */
-
 'use strict'
-/*!
- * glob-fs <https://github.com/tunnckoCore/glob-fs>
- *
- * Copyright (c) 2016 Charlike Mike Reagent <@tunnckoCore> (http://www.tunnckocore.tk)
- * Released under the MIT license.
- */
 
-/* jshint asi:true */
-
-'use strict'
+/* eslint-disable */
 
 var readdir = require('./index-multi')
 // var utils = require('./utils')
 
-var count = 0
-var options = {recursive: true, dot: true}
-var patterns = [
-  '!benchmark/playing/b/**',
-  'fixtures/betafoo/**',
-  'benchmark/playing/**/*.js',
-  'fixtures/quxie/**/*.{html,json}',
-  '!fixtures/betafoo/data.json',
-  '!benchmark/playing/a/[c-z][0-9].*'
-]
+// var count = 0
+// var options = {recursive: true, dot: true}
+// var patterns = [
+//   '!benchmark/playing/b/**',
+//   'fixtures/betafoo/**',
+//   'benchmark/playing/**/*.js',
+//   'fixtures/quxie/**/*.{html,json}',
+//   '!fixtures/betafoo/data.json',
+//   '!benchmark/playing/a/[c-z][0-9].*'
+// ]
 
-var stream = readdir(patterns, options)
+// var stream = readdir(patterns, options)
 
-stream
-.on('data', function (file) {
-  console.log(count++, file.path)
-})
-.on('error', console.error)
-.on('end', function () {
-  console.log('end')
-})
+// stream
+// .on('data', function (file) {
+//   console.log(count++, file.path)
+// })
+// .on('error', console.error)
+// .on('end', function () {
+//   console.log('end')
+// })
 
 // var utils = require('./utils')
 

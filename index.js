@@ -7,10 +7,12 @@
 
 'use strict'
 
+/* eslint-disable */
+
 var utils = require('./utils')
 var util = require('util')
 var path = require('path')
-
+// @todo try `match-file`
 function Readdir (dir, options) {
   if (!(this instanceof Readdir)) {
     return new Readdir(dir, options)
@@ -77,7 +79,9 @@ Readdir.prototype._stat = function stat (fp) {
       return
     }
 
+
     this.file = this.createFile(fp, stats)
+    // @todo: run plugin stack from here
 
     var recurse = this.path === this.file.path || this.options.recursive
     if (recurse && stats.isDirectory()) {
@@ -121,6 +125,7 @@ Readdir.prototype._readdir = function readdir (dir, done) {
   utils.fs.readdir(dir, function (err, filepaths) {
     if (err) return done(err)
     utils.async.eachSeries(filepaths, function (fp, next) {
+      // @todo: check is it working if isMatch is here
       fp = path.resolve(dir, fp)
       self.queue.push(fp)
       next()

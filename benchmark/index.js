@@ -1,5 +1,7 @@
 'use strict'
 
+/* eslint-disable */
+
 var ansi = require('ansi')
 var bold = require('ansi-bold')
 var Benchmark = require('benchmark')
@@ -7,7 +9,7 @@ var suite = new Benchmark.Suite
 var cursor = ansi(process.stdout)
 
 var plugins = require('../utils').plugins
-var glob = require('glob')
+var globby = require('globby')
 var gso = require('glob-stream')
 var GlobKernel = require('../index')
 var GlobFS = require('../index-multi')
@@ -48,25 +50,38 @@ var options = {cwd: __dirname, dot: true, recursive: true}
 var matcher = require('is-match')
 var isMatch = matcher(patterns, options)
 
-suite
-  .add('glob-stream original', function (deferred) {
-    gso.create(gsoPatterns, options)
-      .on('data', function (file) {
-        count++
-      })
-      .on('end', function () {
-        deferred.resolve()
-      })
-  }, opts)
-  .add('glob-fs advanced', function (deferred) {
-    new GlobFS(patterns, options)
-      .on('data', function (file) {
-        count++
-      })
-      .on('end', function () {
-        deferred.resolve()
-      })
-  }, opts)
+// suite
+//   .add('glob-stream original', function (deferred) {
+//     gso.create(gsoPatterns, options)
+//       .on('data', function (file) {
+//         count++
+//       })
+//       .on('end', function () {
+//         deferred.resolve()
+//       })
+//   }, opts)
+//   .add('glob-fs advanced', function (deferred) {
+//     new GlobFS(patterns, options)
+//       .on('data', function (file) {
+//         count++
+//       })
+//       .on('end', function () {
+//         deferred.resolve()
+//       })
+//   }, opts)
+//   .add('node-glob (globby)', function (deferred) {
+//     globby(gsoPatterns, options).then(function (paths) {
+//         deferred.resolve()
+//         //=> ['unicorn', 'rainbow']
+//     })
+//   }, opts)
+  // .add('node-glob (globby)', function (deferred) {
+    require('glob-js').glob(patterns, null, function (err, files) {
+        console.log(err, files)
+        // deferred.resolve()
+        //=> ['unicorn', 'rainbow']
+    })
+  // }, opts)
   // .add('glob-fs kernel (single dir only)', function(deferred) {
   //   var globfs = new GlobKernel('./playing', options)
 
@@ -94,8 +109,8 @@ suite
   //     deferred.resolve()
   //   })
   // }, opts)
-  .on('complete', function () {
-    console.log('Fastest is ' + bold(this.filter('fastest').map('name')))
-    process.exit(0)
-  })
-  .run({ defer: true })
+  // .on('complete', function () {
+  //   console.log('Fastest is ' + bold(this.filter('fastest').map('name')))
+  //   process.exit(0)
+  // })
+  // .run({ defer: true })
