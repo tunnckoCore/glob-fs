@@ -1,0 +1,88 @@
+{
+  "name": "fs-readdir",
+  "version": "0.0.0-semantic-release",
+  "description": "Reading directory of files, done right. Support globbing and optional recursion",
+  "repository": "tunnckoCore/fs-readdir",
+  "homepage": "https://github.com/tunnckoCore/fs-readdir",
+  "author": "Charlike Mike Reagent <@tunnckoCore> (https://i.am.charlike.online)",
+  "nspId": "5d75a388-acfe-4668-ad18-e98564e387e1",
+  "module": "./dest/index.mjs",
+  "main": "./dest/index.js",
+  "license": "MIT",
+  "scripts": {
+    "fresh": "hela fresh",
+    "contrib": "hela contrib",
+    "renovate": "hela renovate",
+    "lint": "hela lint -c .eslintrc.json",
+    "pretest": "hela build && hela pretest",
+    "test": "hela test node test.js",
+    "posttest": "hela posttest",
+    "precommit": "hela precommit",
+    "commit": "hela commit",
+    "postcommit": "git push",
+    "semantic-release": "hela release"
+  },
+  "engines": {
+    "node": ">=6",
+    "npm": ">=5"
+  },
+  "files": [
+    "dest/"
+  ],
+  "dependencies": {
+    "arr-map": "2.0.2",
+    "array-unique": "0.3.2",
+    "arrify": "1.0.1",
+    "each-promise": "1.0.5",
+    "glob-parent": "3.1.0",
+    "is-dotdir": "1.0.1",
+    "is-dotfile": "2.0.0",
+    "is-valid-glob": "1.0.0",
+    "isobject": "3.0.1",
+    "micromatch": "3.0.4",
+    "p-map": "1.1.1",
+    "p-map-series": "1.0.0",
+    "pify": "3.0.0",
+    "redolent": "2.0.5",
+    "to-absolute-glob": "2.0.1",
+    "vfile": "2.2.0",
+    "vinyl": "2.1.0"
+  },
+  "devDependencies": {
+    "eslint": "4.4.1",
+    "eslint-config-standard-tunnckocore": "1.0.5",
+    "hela": "0.5.5",
+    "husky": "0.14.3",
+    "semantic-release": "^6.3.6"
+  },
+  "keywords": [],
+  "verb": {
+    "run": true,
+    "toc": {
+      "render": true,
+      "method": "preWrite",
+      "maxdepth": 3
+    },
+    "layout": "empty",
+    "tasks": [
+      "readme"
+    ],
+    "related": {
+      "list": [
+        "charlike-cli",
+        "charlike",
+        "hela"
+      ]
+    },
+    "lint": {
+      "reflinks": true
+    },
+    "reflinks": [
+      "babylon",
+      "charlike"
+    ]
+  },
+  "release": {
+    "analyzeCommits": "simple-commit-message"
+  }
+}

@@ -1,29 +1,27 @@
-language: "node_js"
 sudo: false
+language: node_js
 
-node_js:
-  - "0.10"
-  - "0.12"
-  - "4"
-  - "5"
+cache:
+  directories:
+    - node_modules
 
 notifications:
-  email:
-    on_success: never
-    on_failure: never
+  email: false
+
+node_js:
+  - '8'
+  - '6'
+
+before_install:
+  - npm install --global npm@latest
 
 before_script:
-  - npm install standard
-  - standard
-
-script:
-  - npm install istanbul
-  - node --harmony node_modules/.bin/istanbul cover test.js
+  - npm prune
 
 after_success:
-  - npm install coveralls
-  - cat coverage/lcov.info | coveralls
+  - npm run semantic-release
+  - bash <(curl -s https://codecov.io/bash)
 
-matrix:
-  allow_failures:
-    - node_js: "0.10"
+branches:
+  except:
+    - /^v\d+\.\d+\.\d+$/
