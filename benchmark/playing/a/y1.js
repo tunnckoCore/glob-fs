@@ -1,1 +1,0 @@
-file:/home/charlike/dev/glob-fs/fixtures/a/y1.js
